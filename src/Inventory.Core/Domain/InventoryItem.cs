@@ -8,15 +8,35 @@ namespace Inventory.Domain
         private readonly List<Event> changes = new List<Event>();
         private int actualAmount;
 
+        public int Amount
+        {
+            get { return actualAmount; }
+        }
+
         public static Inventory Create()
         {
             return new Inventory();
         }
 
+        public static Inventory LoadFrom(IEnumerable<Event> history)
+        {
+            var instance = new Inventory();
+            return instance;
+        }
+
         public Inventory()
         {
-            changes.Add(new InventoryCreatedEvent());
+            var e = new InventoryCreatedEvent();
+            ApplyNewEvent(e);
         }
+
+        private void ApplyNewEvent(InventoryCreatedEvent e)
+        {
+            changes.Add(e);
+            Apply(e);
+        }
+
+        private void Apply(InventoryCreatedEvent e) { }
 
         public IEnumerable<Event> GetUncommittedChanges()
         {
