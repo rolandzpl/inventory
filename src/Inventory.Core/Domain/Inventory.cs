@@ -18,16 +18,6 @@ namespace Inventory.Domain
             return new Inventory(Guid.NewGuid());
         }
 
-        public static Inventory LoadFrom(IEnumerable<Event> history)
-        {
-            var instance = new Inventory();
-            foreach (var e in history)
-            {
-                instance.ApplyEvent(e);
-            }
-            return instance;
-        }
-
         private Inventory(Guid id)
         {
             ApplyNewEvent(new InventoryCreatedEvent(id));

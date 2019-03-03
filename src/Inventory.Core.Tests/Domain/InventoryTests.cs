@@ -17,17 +17,6 @@ namespace Inventory.Domain
                     Has.Exactly(1)
                         .With.TypeOf<InventoryCreatedEvent>());
             }
-
-            [Test]
-            public void Load_HistoryOfInventory_ReturnsInstantInFinalState()
-            {
-                var inventory = Inventory.LoadFrom(new Event[] {
-                    new InventoryCreatedEvent(Guid.NewGuid()),
-                    new InventoryIncreasedEvent(10),
-                    new InventoryDecreasedEvent(2)
-                });
-                Assert.That(inventory.Amount, Is.EqualTo(8));
-            }
         }
 
         public class Operating
