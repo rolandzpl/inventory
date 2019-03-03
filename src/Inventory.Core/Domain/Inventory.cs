@@ -1,14 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 
 namespace Inventory.Domain
 {
-    public class Inventory
+    public class Inventory : AggregateRoot
     {
-        private Guid id;
-        private readonly List<Event> changes = new List<Event>();
         private int actualAmount;
 
         public int Amount
@@ -38,31 +35,9 @@ namespace Inventory.Domain
 
         private Inventory() { }
 
-        private void ApplyNewEvent(Event e)
-        {
-            changes.Add(e);
-            ApplyEvent(e);
-        }
-
-        private void ApplyEvent(Event e)
-        {
-            var handler = GetType()
-                .GetRuntimeMethods()
-                .Where(mi => mi.IsPrivate)
-                .Where(mi => mi.Name == "Apply")
-                .Where(mi => mi.GetParameters().Length == 1)
-                .SingleOrDefault(mi => mi.GetParameters().SingleOrDefault()?.ParameterType == e.GetType());
-            handler?.Invoke(this, new[] { e });
-        }
-
         private void Apply(InventoryCreatedEvent e)
         {
             this.id = e.Id;
-        }
-
-        public IEnumerable<Event> GetUncommittedChanges()
-        {
-            return changes.ToList();
         }
 
         public void Increase(int amount)
