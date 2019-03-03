@@ -8,29 +8,51 @@ namespace Inventory.Domain
         [Test]
         public void InventoryCreated_Always_EmitsInventoryCreatedEvent()
         {
-            Inventory inventory = Inventory.Create();
+            var inventory = Inventory.Create();
             IEnumerable<Event> changes = inventory.GetUncommittedChanges();
-            Assert.That(changes, Has.Exactly(1).InstanceOf<InventoryCreatedEvent>());
+            Assert.That(changes, 
+                Has.Exactly(1)
+                    .With.TypeOf<InventoryCreatedEvent>());
         }
 
         [Test]
-        public void IncreaseInventory_ByAmount_EmitsInventoryIncreasedEvent()
+        public void IncreaseInventory_ByAmountOfN_EmitsInventoryIncreasedEvent()
         {
-            var inventory = Inventory.Create();
-            inventory.Increase(1);
+            var N = 1;
+            inventory.Increase(N);
             Assert.That(
                 inventory.GetUncommittedChanges(),
-                Has.Exactly(1).InstanceOf<InventoryIncreasedEvent>());
+                Has.Exactly(1)
+                    .TypeOf<InventoryIncreasedEvent>()
+                    .And.Matches<InventoryIncreasedEvent>(x => x.Amount == N));
         }
 
         [Test]
-        public void DecreaseInventory_ByAmount_EmitsInventoryDecreasedEvent()
+        public void DecreaseInventory_ByAmountThetIsAvailable_EmitsInventoryDecreasedEvent()
         {
-            var inventory = Inventory.Create();
-            inventory.Decrease(1);
+            var N = 1;
+            inventory.Increase(N);
+            inventory.Decrease(N);
             Assert.That(
-                inventory.GetUncommittedChanges(), 
-                Has.Exactly(1).InstanceOf<InventoryDecreasedEvent>());
+                inventory.GetUncommittedChanges(),
+                Has.Exactly(1)
+                    .TypeOf<InventoryDecreasedEvent>()
+                    .And.Matches<InventoryDecreasedEvent>(e => e.Amount == N));
         }
+
+        [Test]
+        public void DecreaseInventory_ByAmountGreaterThanActuallyAvailable_ThrowsException()
+        {
+            var N = 1;
+            Assert.Throws<InvalidAmountException>(() => inventory.Decrease(N));
+        }
+
+        [SetUp]
+        protected  void SetUp()
+        {
+            inventory = Inventory.Create();
+        }
+
+        private Inventory inventory;
     }
 }
