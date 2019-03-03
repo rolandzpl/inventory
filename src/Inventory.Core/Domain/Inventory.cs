@@ -1,10 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 
 namespace Inventory.Domain
 {
     public class Inventory
     {
+        private Guid id;
         private readonly List<Event> changes = new List<Event>();
         private int actualAmount;
 
@@ -15,28 +18,47 @@ namespace Inventory.Domain
 
         public static Inventory Create()
         {
-            return new Inventory();
+            return new Inventory(Guid.NewGuid());
         }
 
         public static Inventory LoadFrom(IEnumerable<Event> history)
         {
             var instance = new Inventory();
+            foreach (var e in history)
+            {
+                instance.ApplyEvent(e);
+            }
             return instance;
         }
 
-        public Inventory()
+        private Inventory(Guid id)
         {
-            var e = new InventoryCreatedEvent();
-            ApplyNewEvent(e);
+            ApplyNewEvent(new InventoryCreatedEvent(id));
         }
 
-        private void ApplyNewEvent(InventoryCreatedEvent e)
+        private Inventory() { }
+
+        private void ApplyNewEvent(Event e)
         {
             changes.Add(e);
-            Apply(e);
+            ApplyEvent(e);
         }
 
-        private void Apply(InventoryCreatedEvent e) { }
+        private void ApplyEvent(Event e)
+        {
+            var handler = GetType()
+                .GetRuntimeMethods()
+                .Where(mi => mi.IsPrivate)
+                .Where(mi => mi.Name == "Apply")
+                .Where(mi => mi.GetParameters().Length == 1)
+                .SingleOrDefault(mi => mi.GetParameters().SingleOrDefault()?.ParameterType == e.GetType());
+            handler?.Invoke(this, new[] { e });
+        }
+
+        private void Apply(InventoryCreatedEvent e)
+        {
+            this.id = e.Id;
+        }
 
         public IEnumerable<Event> GetUncommittedChanges()
         {
@@ -45,8 +67,12 @@ namespace Inventory.Domain
 
         public void Increase(int amount)
         {
-            changes.Add(new InventoryIncreasedEvent(amount));
-            actualAmount++;
+            ApplyNewEvent(new InventoryIncreasedEvent(amount));
+        }
+
+        private void Apply(InventoryIncreasedEvent e)
+        {
+            actualAmount += e.Amount;
         }
 
         public void Decrease(int amount)
@@ -55,8 +81,12 @@ namespace Inventory.Domain
             {
                 throw new InvalidAmountException();
             }
-            changes.Add(new InventoryDecreasedEvent(amount));
-            actualAmount--;
+            ApplyNewEvent(new InventoryDecreasedEvent(amount));
+        }
+
+        private void Apply(InventoryDecreasedEvent e)
+        {
+            actualAmount -= e.Amount;
         }
     }
 }

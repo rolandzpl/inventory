@@ -1,4 +1,5 @@
 ﻿using NUnit.Framework;
+using System;
 using System.Collections.Generic;
 
 namespace Inventory.Domain
@@ -17,16 +18,16 @@ namespace Inventory.Domain
                         .With.TypeOf<InventoryCreatedEvent>());
             }
 
-            //[Test]
-            //public void Load_HistoryOfInventory_xxxxxxxxx()
-            //{
-            //    var inventory = Inventory.LoadFrom(new Event[] {
-            //        new InventoryCreatedEvent(),
-            //        new InventoryIncreasedEvent(10),
-            //        new InventoryDecreasedEvent(2)
-            //    });
-            //    Assert.That(inventory.Amount, Is.EqualTo(8));
-            //}
+            [Test]
+            public void Load_HistoryOfInventory_xxxxxxxxx()
+            {
+                var inventory = Inventory.LoadFrom(new Event[] {
+                    new InventoryCreatedEvent(Guid.NewGuid()),
+                    new InventoryIncreasedEvent(10),
+                    new InventoryDecreasedEvent(2)
+                });
+                Assert.That(inventory.Amount, Is.EqualTo(8));
+            }
         }
 
         public class Operating

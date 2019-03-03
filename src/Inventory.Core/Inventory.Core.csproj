@@ -5,4 +5,8 @@
     <RootNamespace>Inventory</RootNamespace>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Folder Include="UseCases\" />
+  </ItemGroup>
+
 </Project>
