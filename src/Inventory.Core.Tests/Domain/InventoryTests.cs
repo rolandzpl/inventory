@@ -45,7 +45,7 @@ namespace Inventory.Domain
             }
 
             [Test]
-            public void DecreaseInventory_ByAmountThetIsAvailable_EmitsInventoryDecreasedEvent()
+            public void DecreaseInventory_ByAmountThatIsAvailable_EmitsInventoryDecreasedEvent()
             {
                 var N = 1;
                 inventory.Increase(N);
