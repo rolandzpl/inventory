@@ -11,13 +11,13 @@ namespace Inventory.Domain
         public void GetItemById_GivenHistory_ReturnsInstantInFinalState()
         {
             var id = Guid.NewGuid();
-            var repository = new Repository<Inventory>(
-                _ => new Event[] {
-                    new InventoryCreatedEvent(id),
-                    new InventoryIncreasedEvent(10),
-                    new InventoryDecreasedEvent(2)
-                },
-                _ => { });
+            var history = new Event[]
+            {
+                new InventoryCreatedEvent(id),
+                new InventoryIncreasedEvent(10),
+                new InventoryDecreasedEvent(2)
+            };
+            var repository = new Repository<Inventory>(_ => history, _ => { });
             var inventory = repository.GetItemById(id);
             Assert.That(inventory.Amount, Is.EqualTo(8));
         }
