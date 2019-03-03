@@ -49,8 +49,7 @@ namespace Inventory.Domain
             [Test]
             public void DecreaseInventory_ByAmountGreaterThanActuallyAvailable_ThrowsException()
             {
-                var N = 1;
-                Assert.Throws<InvalidAmountException>(() => inventory.Decrease(N));
+                Assert.Throws<InvalidAmountException>(() => inventory.Decrease(100));
             }
 
             [SetUp]
