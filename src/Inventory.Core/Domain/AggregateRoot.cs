@@ -16,7 +16,7 @@ namespace Inventory.Domain
             ApplyEvent(e);
         }
 
-        protected void ApplyEvent(Event e)
+        internal void ApplyEvent(Event e)
         {
             var handler = GetType()
                 .GetRuntimeMethods()
