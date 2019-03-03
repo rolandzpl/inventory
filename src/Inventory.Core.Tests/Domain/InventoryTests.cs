@@ -19,7 +19,7 @@ namespace Inventory.Domain
             }
 
             [Test]
-            public void Load_HistoryOfInventory_xxxxxxxxx()
+            public void Load_HistoryOfInventory_ReturnsInstantInFinalState()
             {
                 var inventory = Inventory.LoadFrom(new Event[] {
                     new InventoryCreatedEvent(Guid.NewGuid()),
