@@ -25,10 +25,10 @@ namespace Inventory.Domain
         [Test]
         public void Save_GivenHistory_ReturnsInstantInFinalState()
         {
-            var savedItems = new List<Event>();
-            var repository = new Repository<Inventory>(_ => Enumerable.Empty<Event>(), _ => savedItems.AddRange(_));
+            var savedEvents = new List<Event>();
+            var repository = new Repository<Inventory>(_ => Enumerable.Empty<Event>(), _ => savedEvents.AddRange(_));
             repository.Save(Inventory.Create());
-            Assert.That(savedItems, Is.Not.Empty);
+            Assert.That(savedEvents, Is.Not.Empty);
         }
 
         [Test]
