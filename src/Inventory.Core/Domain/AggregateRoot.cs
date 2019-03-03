@@ -31,5 +31,10 @@ namespace Inventory.Domain
         {
             return changes.ToList();
         }
+
+        public void ClearUncommittedChanges()
+        {
+            changes.Clear();
+        }
     }
 }
