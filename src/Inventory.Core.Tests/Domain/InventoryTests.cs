@@ -1,4 +1,5 @@
-﻿using NUnit.Framework;
+﻿using DDD.Domain;
+using NUnit.Framework;
 using System.Collections.Generic;
 
 namespace Inventory.Domain

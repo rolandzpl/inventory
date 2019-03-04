@@ -1,4 +1,4 @@
-﻿namespace Inventory.Domain
+﻿namespace DDD.Domain
 {
     public class Event { }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DDD.Domain;
+using System;
 
 namespace Inventory.Domain
 {

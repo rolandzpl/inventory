@@ -1,4 +1,6 @@
-﻿namespace Inventory.Domain
+﻿using DDD.Domain;
+
+namespace Inventory.Domain
 {
     public class InventoryIncreasedEvent : Event
     {
