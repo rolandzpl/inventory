@@ -5,36 +5,37 @@ using System.Reflection;
 
 namespace DDD.Domain
 {
-    public abstract class AggregateRoot
-    {
-        private readonly List<Event> changes = new List<Event>();
-        protected Guid id;
+	public abstract class AggregateRoot<TId>
+	{
+		private readonly List<Event> changes = new List<Event>();
 
-        protected void ApplyNewEvent(Event e)
-        {
-            changes.Add(e);
-            ApplyEvent(e);
-        }
+		public TId Id { get; protected set; }
 
-        internal void ApplyEvent(Event e)
-        {
-            var handler = GetType()
-                .GetRuntimeMethods()
-                .Where(mi => mi.IsPrivate)
-                .Where(mi => mi.Name == "Apply")
-                .Where(mi => mi.GetParameters().Length == 1)
-                .SingleOrDefault(mi => mi.GetParameters().SingleOrDefault()?.ParameterType == e.GetType());
-            handler?.Invoke(this, new[] { e });
-        }
+		protected void ApplyNewEvent(Event e)
+		{
+			changes.Add(e);
+			ApplyEvent(e);
+		}
 
-        public IEnumerable<Event> GetUncommittedChanges()
-        {
-            return changes.ToList();
-        }
+		internal void ApplyEvent(Event e)
+		{
+			var handler = GetType()
+				.GetRuntimeMethods()
+				.Where(mi => mi.IsPrivate)
+				.Where(mi => mi.Name == "Apply")
+				.Where(mi => mi.GetParameters().Length == 1)
+				.SingleOrDefault(mi => mi.GetParameters().SingleOrDefault()?.ParameterType == e.GetType());
+			handler?.Invoke(this, new[] { e });
+		}
 
-        public void ClearUncommittedChanges()
-        {
-            changes.Clear();
-        }
-    }
+		public IEnumerable<Event> GetUncommittedChanges()
+		{
+			return changes.ToList();
+		}
+
+		public void ClearUncommittedChanges()
+		{
+			changes.Clear();
+		}
+	}
 }

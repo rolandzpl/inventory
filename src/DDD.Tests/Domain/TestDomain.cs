@@ -2,7 +2,7 @@
 
 namespace DDD.Domain
 {
-  public class TestDomain : AggregateRoot
+  public class TestDomain : AggregateRoot<Guid>
   {
     private TestDomain() { }
 

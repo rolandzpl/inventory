@@ -5,20 +5,20 @@ using System.Reflection;
 
 namespace DDD.Domain
 {
-    public class Repository<T> where T : AggregateRoot
+    public class Repository<TEntity, TId> where TEntity : AggregateRoot<TId>
     {
-        private readonly Func<Guid, IEnumerable<Event>> historyProvider;
+        private readonly Func<TId, IEnumerable<Event>> historyProvider;
         private readonly Action<IEnumerable<Event>> persistEvents;
 
         public Repository(
-            Func<Guid, IEnumerable<Event>> historyProvider,
+            Func<TId, IEnumerable<Event>> historyProvider,
             Action<IEnumerable<Event>> persistEvents)
         {
             this.historyProvider = historyProvider ?? throw new ArgumentNullException(nameof(historyProvider));
             this.persistEvents = persistEvents ?? throw new ArgumentNullException(nameof(persistEvents));
         }
 
-        public T GetItemById(Guid id)
+        public TEntity GetItemById(TId id)
         {
             var history = historyProvider.Invoke(id);
             if (!history.Any())
@@ -26,7 +26,7 @@ namespace DDD.Domain
                 throw new KeyNotFoundException($"Instance with id {id} was not found");
             }
             var ctor = GetConstructor();
-            var instance = (T)ctor.Invoke(null);
+            var instance = (TEntity)ctor.Invoke(null);
             foreach (var e in history)
             {
                 instance.ApplyEvent(e);
@@ -36,13 +36,13 @@ namespace DDD.Domain
 
         private static ConstructorInfo GetConstructor()
         {
-            return typeof(T)
+            return typeof(TEntity)
                 .GetConstructors(BindingFlags.NonPublic | BindingFlags.Instance)
                 .Where(c => c.GetParameters().Length == 0)
                 .FirstOrDefault();
         }
 
-        public void Save(T item)
+        public void Save(TEntity item)
         {
             persistEvents.Invoke(item.GetUncommittedChanges());
             item.ClearUncommittedChanges();

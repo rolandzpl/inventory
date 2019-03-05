@@ -15,7 +15,7 @@ namespace DDD.Domain
       {
         new TestDomainCreatedEvent(id),
       };
-      var repository = new Repository<TestDomain>(_ => history, _ => { });
+      var repository = new Repository<TestDomain, Guid>(_ => history, _ => { });
       var obj = repository.GetItemById(id);
       Assert.That(obj, Is.Not.Null);
     }
@@ -24,7 +24,7 @@ namespace DDD.Domain
     public void Save_GivenHistory_ReturnsInstantInFinalState()
     {
       var savedEvents = new List<Event>();
-      var repository = new Repository<TestDomain>(_ => Enumerable.Empty<Event>(), _ => savedEvents.AddRange(_));
+      var repository = new Repository<TestDomain, Guid>(_ => Enumerable.Empty<Event>(), _ => savedEvents.AddRange(_));
       var id = Guid.NewGuid();
       var obj = new TestDomain(id);
       repository.Save(obj);
@@ -36,7 +36,7 @@ namespace DDD.Domain
     {
       var id = Guid.NewGuid();
       var obj = new TestDomain(id);
-      var repository = new Repository<TestDomain>(_ => Enumerable.Empty<Event>(), _ => { });
+      var repository = new Repository<TestDomain, Guid>(_ => Enumerable.Empty<Event>(), _ => { });
       repository.Save(obj);
       Assert.That(obj.GetUncommittedChanges(), Is.Empty);
     }
@@ -46,7 +46,7 @@ namespace DDD.Domain
     {
       var id = Guid.NewGuid();
       var obj = new TestDomain(id);
-      var repository = new Repository<TestDomain>(_ => Enumerable.Empty<Event>(), _ => throw new Exception());
+      var repository = new Repository<TestDomain, Guid>(_ => Enumerable.Empty<Event>(), _ => throw new Exception());
       try { repository.Save(obj); } catch { }
       Assert.That(obj.GetUncommittedChanges(), Is.Not.Empty);
     }
