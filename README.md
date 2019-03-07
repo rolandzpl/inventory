@@ -1,4 +1,4 @@
 # Inventory
 
-Inventory is a simple manager forinventory, like electronic parts, cd library or any other stuff
-youcould have plenty of and just lost control over.
+Inventory is a simple manager for inventory, like electronic parts, cd library, books or any other stuff
+you could have plenty of and just lost control over.
