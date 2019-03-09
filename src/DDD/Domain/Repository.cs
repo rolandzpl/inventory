@@ -7,20 +7,16 @@ namespace DDD.Domain
 {
 	public class Repository<TEntity, TId> where TEntity : AggregateRoot<TId>
 	{
-		private readonly Func<TId, IEnumerable<Event>> historyProvider;
-		private readonly Action<IEnumerable<Event>> persistEvents;
+		private readonly IEventStore eventStore;
 
-		public Repository(
-				Func<TId, IEnumerable<Event>> historyProvider,
-				Action<IEnumerable<Event>> persistEvents)
+		public Repository(IEventStore eventStore)
 		{
-			this.historyProvider = historyProvider ?? throw new ArgumentNullException(nameof(historyProvider));
-			this.persistEvents = persistEvents ?? throw new ArgumentNullException(nameof(persistEvents));
+			this.eventStore = eventStore ?? throw new ArgumentNullException(nameof(eventStore));
 		}
 
 		public TEntity GetItemById(TId id)
 		{
-			var history = historyProvider.Invoke(id);
+			var history = eventStore.GetEventsById(id);
 			if (!history.Any())
 			{
 				throw new KeyNotFoundException($"Instance with id {id} was not found");
@@ -44,7 +40,7 @@ namespace DDD.Domain
 
 		public void Save(TEntity item)
 		{
-			persistEvents.Invoke(item.GetUncommittedChanges());
+			eventStore.SaveEvents(item.GetUncommittedChanges());
 			item.ClearUncommittedChanges();
 		}
 	}
