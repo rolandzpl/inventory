@@ -69,14 +69,14 @@ namespace DDD.Domain
 		protected Repository<TestDomain, Guid> GetRepository(ICollection<Event> events)
 		{
 			return new Repository<TestDomain, Guid>(
-				new DelegatedEventStore<Guid>(_ => events, _ => PersistEvents(events, _)));
+				new DelegatedEventStore<Guid>(_ => events, (id, e, expectedVersion) => PersistEvents(events, e)));
 		}
 
 		protected Repository<TestDomain, Guid> GetRepositoryThrowingError<TError>(ICollection<Event> events)
 			where TError : Exception, new()
 		{
 			return new Repository<TestDomain, Guid>(
-				new DelegatedEventStore<Guid>(_ => events, _ => throw new TError()));
+				new DelegatedEventStore<Guid>(_ => events, (id, e, expectedVersion) => throw new TError()));
 		}
 
 		private static void PersistEvents(ICollection<Event> storage, IEnumerable<Event> eventsToPersist)

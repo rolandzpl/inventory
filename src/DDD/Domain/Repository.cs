@@ -23,10 +23,7 @@ namespace DDD.Domain
 			}
 			var ctor = GetConstructor();
 			var instance = (TEntity)ctor.Invoke(null);
-			foreach (var e in history)
-			{
-				instance.ApplyEvent(e);
-			}
+			instance.LoadFromHistory(history);
 			return instance;
 		}
 
@@ -40,7 +37,7 @@ namespace DDD.Domain
 
 		public void Save(TEntity item)
 		{
-			eventStore.SaveEvents(item.GetUncommittedChanges());
+			eventStore.SaveEvents(item.Id, item.GetUncommittedChanges(), item.Version);
 			item.ClearUncommittedChanges();
 		}
 	}

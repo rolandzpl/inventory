@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
@@ -10,6 +9,27 @@ namespace DDD.Domain
 		private readonly List<Event> changes = new List<Event>();
 
 		public TId Id { get; protected set; }
+
+		public int Version { get; internal set; }
+
+		public void LoadFromHistory(IEnumerable<Event> history)
+		{
+			LoadFromHistoryImpl(GetOrderred(history));
+		}
+
+		private static IOrderedEnumerable<Event> GetOrderred(IEnumerable<Event> history)
+		{
+			return history.OrderBy(e => e.Version);
+		}
+
+		private void LoadFromHistoryImpl(IOrderedEnumerable<Event> orderredHistory)
+		{
+			foreach (var e in orderredHistory)
+			{
+				ApplyEvent(e);
+				Version = e.Version;
+			}
+		}
 
 		protected void ApplyNewEvent(Event e)
 		{

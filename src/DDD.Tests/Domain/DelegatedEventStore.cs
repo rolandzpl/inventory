@@ -5,12 +5,12 @@ namespace DDD.Domain
 {
 	internal class DelegatedEventStore<TId> : IEventStore
 	{
-		private Func<TId, IEnumerable<Event>> getEventsById;
-		private Action<IEnumerable<Event>> persistEvents;
+		private Func<object, IEnumerable<Event>> getEventsById;
+		private Action<object, IEnumerable<Event>, int> persistEvents;
 
 		public DelegatedEventStore(
-			Func<TId, IEnumerable<Event>> getEventsById,
-			Action<IEnumerable<Event>> persistEvents)
+			Func<object, IEnumerable<Event>> getEventsById,
+			Action<object, IEnumerable<Event>, int> persistEvents)
 		{
 			this.getEventsById = getEventsById ?? throw new ArgumentNullException(nameof(getEventsById));
 			this.persistEvents = persistEvents ?? throw new ArgumentNullException(nameof(persistEvents));
@@ -18,12 +18,12 @@ namespace DDD.Domain
 
 		public IEnumerable<Event> GetEventsById(object id)
 		{
-			return getEventsById((TId)id);
+			return getEventsById(id);
 		}
 
-		public void SaveEvents(IEnumerable<Event> events)
+		public void SaveEvents(object id, IEnumerable<Event> events, int expectedVersion)
 		{
-			persistEvents(events);
+			persistEvents(id, events, expectedVersion);
 		}
 	}
 }
