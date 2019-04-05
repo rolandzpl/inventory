@@ -6,7 +6,7 @@ you could have plenty of and just lost control over.
 ## DDD
 
 DDD is a library created to make building DDD and Event Sourcing easier.
-Mainclass, AggregateRoot, implements basic building blocks most of the
+Main class, [AggregateRoot](src/DDD/Domain/AggregateRoot.cs), implements basic building blocks most of the
 domain entities use. Mostly it is event facility.
 
 ## DDD.EventStore
