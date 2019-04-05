@@ -18,12 +18,12 @@ namespace DDD.EventStore
 			this.connection = connection ?? throw new ArgumentNullException(nameof(connection));
 		}
 
-		public IEnumerable<Event<TId>> GetEventsById<TId>(TId id)
+		public IEnumerable<Event> GetEventsById(object id)
 		{
 			throw new NotImplementedException();
 		}
 
-		public void SaveEvents<TId>(IEnumerable<Event<TId>> events)
+		public void SaveEvents(object id, IEnumerable<Event> events, int expectedVersion)
 		{
 			connection.AppendToStreamAsync(
 					ResolveStreamName(events),
@@ -32,7 +32,7 @@ namespace DDD.EventStore
 				.Wait();
 		}
 
-		private static string ResolveStreamName<TId>(IEnumerable<Event<TId>> events)
+		private static string ResolveStreamName(IEnumerable<Event> events)
 		{
 			return events
 				.Select(e => e.Id)
@@ -41,7 +41,7 @@ namespace DDD.EventStore
 				.ToString();
 		}
 
-		private EventData GetEventData<TId>(Event<TId> e)
+		private EventData GetEventData<TId>(Event e)
 		{
 			return new EventData(Guid.NewGuid(), ResolveEventType(e), true, SerializeToBytes(e), null);
 		}
