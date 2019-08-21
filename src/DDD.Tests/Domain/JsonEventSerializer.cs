@@ -1,10 +1,22 @@
-﻿namespace DDD.Domain
+﻿using Newtonsoft.Json;
+using System.IO;
+
+namespace DDD.Domain
 {
-	internal class JsonEventSerializer : IEventSerializer
+	public class JsonEventSerializer : IEventSerializer
 	{
+		private readonly JsonSerializer serializer;
+
+		public JsonEventSerializer()
+		{
+			this.serializer = JsonSerializer.CreateDefault();
+		}
+
 		public string Serialize(Event e)
 		{
-			throw new System.NotImplementedException();
+			var writer = new StringWriter();
+			serializer.Serialize(writer, e);
+			return writer.GetStringBuilder().ToString();
 		}
 	}
 }

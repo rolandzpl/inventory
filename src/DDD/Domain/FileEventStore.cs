@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.IO;
 
@@ -28,9 +29,27 @@ namespace DDD.Domain
 				var path = $"{id}-{e.Version}.event";
 				using (TextWriter writer = fs.CreateText(path))
 				{
-					writer.WriteLine(content);
+					var eventSerializer = JsonSerializer.CreateDefault();
+					eventSerializer.Serialize(writer, new EventData()
+					{
+						Timestamp = DateTime.UtcNow,
+						EventId = Guid.NewGuid(),
+						AggregateId = id,
+						AggregateVersion = expectedVersion,
+						Payload = content
+					});
+					writer.Flush();
 				}
 			}
 		}
+	}
+
+	public class EventData
+	{
+		public DateTime Timestamp;
+		public Guid EventId;
+		public object AggregateId;
+		public int AggregateVersion;
+		public string Payload;
 	}
 }

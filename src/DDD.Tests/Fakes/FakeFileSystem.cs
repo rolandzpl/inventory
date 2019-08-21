@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 
 namespace DDD.Fakes
 {
@@ -17,12 +18,25 @@ namespace DDD.Fakes
 
 		public TextWriter CreateText(string path)
 		{
-			throw new NotImplementedException();
+			var f = new File(path);
+			files.Add(f);
+			return new StringWriter(f.GetStringBuilder());
 		}
 
 		public class File
 		{
-			public string Path { get; private set; }
+			private readonly Lazy<StringBuilder> sb = new Lazy<StringBuilder>();
+			public readonly string Path;
+
+			public File(string path)
+			{
+				Path = path;
+			}
+
+			internal StringBuilder GetStringBuilder()
+			{
+				return sb.Value;
+			}
 		}
 	}
 }
