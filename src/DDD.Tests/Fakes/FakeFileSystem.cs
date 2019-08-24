@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace DDD.Fakes
 {
@@ -21,6 +22,21 @@ namespace DDD.Fakes
 			var f = new File(path);
 			files.Add(f);
 			return new StringWriter(f.GetStringBuilder());
+		}
+
+		public IEnumerable<string> GetFiles(string path)
+		{
+			var pattern = path.Replace("*", ".+");
+			return files
+				.Where(f => Regex.Match(f.Path, pattern).Success)
+				.Select(f => f.Path)
+				.ToList();
+		}
+
+		public TextReader OpenText(string path)
+		{
+			var file = files.FirstOrDefault(f => Regex.Match(f.Path, path).Success);
+			return new StringReader(file.GetStringBuilder().ToString());
 		}
 
 		public class File

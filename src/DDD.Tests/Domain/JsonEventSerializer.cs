@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using System;
 using System.IO;
 
 namespace DDD.Domain
@@ -10,6 +11,13 @@ namespace DDD.Domain
 		public JsonEventSerializer()
 		{
 			this.serializer = JsonSerializer.CreateDefault();
+		}
+
+		public Event Deserialize(string s, Type type)
+		{
+			var reader = new StringReader(s);
+			var json = new JsonTextReader(reader);
+			return (Event)serializer.Deserialize(json, type);
 		}
 
 		public string Serialize(Event e)

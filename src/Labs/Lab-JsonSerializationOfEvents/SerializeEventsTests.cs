@@ -34,7 +34,6 @@ namespace Inventory
 			var data = sb.ToString();
 
 			var reader = new StringReader(data);
-			serializer.
 		}
 	}
 

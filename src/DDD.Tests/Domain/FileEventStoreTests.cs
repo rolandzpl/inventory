@@ -2,49 +2,98 @@
 using Newtonsoft.Json;
 using NUnit.Framework;
 using System;
+using System.Linq;
 using System.Text;
-using static DDD.Fakes.FakeFileSystem;
 using StringReader = System.IO.StringReader;
 
 namespace DDD.Domain
 {
 	class FileEventStoreTests
 	{
-		[Test]
-		public void CreateEventStore_NullFileSystem_ThrowsException()
+		class Creating
 		{
-			Assert.Multiple(() =>
+			[Test]
+			public void CreateEventStore_NullFileSystem_ThrowsException()
 			{
-				Assert.Throws<ArgumentNullException>(() => new FileEventStore(null, new JsonEventSerializer()));
-				Assert.Throws<ArgumentNullException>(() => new FileEventStore(new FakeFileSystem(), null));
-			});
+				Assert.Multiple(() =>
+				{
+					Assert.Throws<ArgumentNullException>(() => new FileEventStore("", null, new JsonEventSerializer()));
+					Assert.Throws<ArgumentNullException>(() => new FileEventStore("", new FakeFileSystem(), null));
+				});
+			}
 		}
 
-		[Test]
-		public void SaveEvents_()
+		class SavingOrReading
 		{
-			var fileSystem = new FakeFileSystem();
-			var serializer = new JsonEventSerializer();
-			var eventStore = new FileEventStore(fileSystem, serializer);
-			var aggregateId = Guid.NewGuid();
-			var events = new Event[]
+			[Test]
+			public void SaveEvents_NoConcurrencyConflict_NewEventFileCreated()
 			{
-				new TestDomainCreatedEvent(aggregateId)
-			};
-			eventStore.SaveEvents(aggregateId, events, -1);
-			Assert.That(
-				fileSystem.Files,
-				Has.Exactly(1).With.Matches<File>(f =>
-					f.Path == $"{aggregateId}-0.event" &&
-					Guid.Parse(DeserializeEvent(f.GetStringBuilder()).AggregateId.ToString()) == aggregateId));
-		}
+				var events = GetEvents();
+				eventStore.SaveEvents(aggregateId, events, -1);
+				Assert.That(fileSystem.Files.Count(), Is.EqualTo(1));
+			}
 
-		private EventData DeserializeEvent(StringBuilder sb)
-		{
-			var serializer = JsonSerializer.CreateDefault();
-			var reader = new StringReader(sb.ToString());
-			var json = new JsonTextReader(reader);
-			return serializer.Deserialize<EventData>(json);
+			private Event[] GetEvents()
+			{
+				return new Event[]
+				{
+					new TestDomainCreatedEvent(aggregateId)
+				};
+			}
+
+			[Test]
+			public void SaveEvents_NoConcurrencyConflict_EventDataStored()
+			{
+				var events = GetEvents();
+				eventStore.SaveEvents(aggregateId, events, -1);
+				Assert.That(
+					fileSystem.Files.Select(f => DeserializeEvent(f.GetStringBuilder())),
+					Has.One.Matches<EventData>(e =>
+						e.AggregateId.Equals(aggregateId.ToString()) &&
+						e.EventName == "TestDomainCreatedEvent"));
+			}
+
+			[Test]
+			public void SaveEvents_EventWithHigherVersionAlreadyExists_ConcurrencyExceptionIsThrown()
+			{
+				StoreEventDataInFilesystem(aggregateId, 0);
+				var events = GetEvents();
+				Assert.Throws<ConcurrencyException>(() => eventStore.SaveEvents(aggregateId, events, -1));
+			}
+
+			private void StoreEventDataInFilesystem(Guid aggregateId, int version)
+			{
+				var file = fileSystem.CreateText($"{aggregateId}-0.event");
+				var eventData = new EventData()
+				{
+					AggregateId = aggregateId,
+					AggregateVersion = version
+				};
+				var sss = JsonSerializer.CreateDefault();
+				sss.Serialize(file, eventData);
+			}
+
+			private EventData DeserializeEvent(StringBuilder sb)
+			{
+				var serializer = JsonSerializer.CreateDefault();
+				var reader = new StringReader(sb.ToString());
+				var json = new JsonTextReader(reader);
+				return serializer.Deserialize<EventData>(json);
+			}
+
+			[SetUp]
+			protected void SetUp()
+			{
+				fileSystem = new FakeFileSystem();
+				serializer = new JsonEventSerializer();
+				eventStore = new FileEventStore("", fileSystem, serializer);
+				aggregateId = Guid.NewGuid();
+			}
+
+			private FakeFileSystem fileSystem;
+			private JsonEventSerializer serializer;
+			private FileEventStore eventStore;
+			private Guid aggregateId;
 		}
 	}
 }
