@@ -59,6 +59,16 @@ namespace DDD.Domain
 			}
 
 			[Test]
+			public void SaveEvents_NoConcurrencyConflict_EventRaised()
+			{
+				var receivedEvents = new List<Event>();
+				eventStore.NewEvents += (o, e) => receivedEvents.AddRange(e.NewEvents);
+				var events = GetEvents();
+				eventStore.SaveEvents(aggregateId, events, -1);
+				Assert.That(receivedEvents, Has.Exactly(1).InstanceOf<TestDomainCreatedEvent>());
+			}
+
+			[Test]
 			public void SaveEvents_SeveralEvents_EveryNextEventDataHasIncrementedVersion()
 			{
 				var events = new Event[]

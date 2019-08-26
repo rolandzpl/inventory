@@ -16,6 +16,8 @@ namespace DDD.Domain
 			this.persistEvents = persistEvents ?? throw new ArgumentNullException(nameof(persistEvents));
 		}
 
+		public event EventHandler<NewEventsEventArgs> NewEvents;
+
 		public IEnumerable<Event> GetEventsById(object id)
 		{
 			return getEventsById(id);
@@ -24,6 +26,7 @@ namespace DDD.Domain
 		public void SaveEvents(object id, IEnumerable<Event> events, int expectedVersion)
 		{
 			persistEvents(id, events, expectedVersion);
+			NewEvents?.Invoke(this, new NewEventsEventArgs(events));
 		}
 	}
 }

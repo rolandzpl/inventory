@@ -13,6 +13,8 @@ namespace DDD.Domain
 		private readonly IEventSerializer serializer;
 		private readonly JsonSerializer eventSerializer;
 
+		public event EventHandler<NewEventsEventArgs> NewEvents;
+
 		public FileEventStore(string rootDirectory, IFileSystem fs, IEventSerializer serializer)
 		{
 			this.fs = fs ?? throw new ArgumentNullException(nameof(fs));
@@ -87,6 +89,7 @@ namespace DDD.Domain
 					writer.Flush();
 				}
 			}
+			NewEvents?.Invoke(this, new NewEventsEventArgs(events));
 		}
 
 		private int GetMaxVersion(object id)
