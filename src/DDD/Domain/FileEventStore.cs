@@ -30,7 +30,23 @@ namespace DDD.Domain
 
 		private Type GetEventType(string eventName)
 		{
-			return Type.GetType(eventName);
+			return AppDomain
+				.CurrentDomain
+				.GetAssemblies()
+				.SelectMany(asm => GetTypesForAssembly(asm).Where(t => t.Name == eventName))
+				.FirstOrDefault();
+		}
+
+		private static IEnumerable<Type> GetTypesForAssembly(System.Reflection.Assembly asm)
+		{
+			try
+			{
+				return asm.GetTypes();
+			}
+			catch
+			{
+				return Enumerable.Empty<Type>();
+			}
 		}
 
 		private IEnumerable<EventData> GetEventDataForId(object id)
@@ -52,12 +68,13 @@ namespace DDD.Domain
 			{
 				throw new ConcurrencyException();
 			}
+			var currentVersion = expectedVersion;
 			foreach (var e in events)
 			{
 				var path = $"{id}-{e.Version}.event";
-				var currentVersion = expectedVersion;
 				using (TextWriter writer = fs.CreateText(path))
 				{
+					e.Version = currentVersion;
 					eventSerializer.Serialize(writer, new EventData()
 					{
 						Timestamp = DateTime.UtcNow,

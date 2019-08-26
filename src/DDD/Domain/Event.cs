@@ -2,6 +2,6 @@
 {
 	public class Event
 	{
-		public int Version { get; protected set; }
+		public int Version { get; set; }
 	}
 }
