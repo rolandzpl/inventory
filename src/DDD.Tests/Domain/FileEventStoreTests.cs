@@ -44,6 +44,13 @@ namespace DDD.Domain
 			}
 
 			[Test]
+			public void GetEventsById_NoEvents_ReturnsEmptyList()
+			{
+				var events = eventStore.GetEventsById(aggregateId);
+				Assert.That(events, Is.Empty);
+			}
+
+			[Test]
 			public void SaveEvents_NoConcurrencyConflict_NewEventFileCreated()
 			{
 				var events = GetEvents();
