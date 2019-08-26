@@ -4,6 +4,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
+// TODO: Replaying events (projections will need it on starting up of the system)
+// TODO: MessageBus + EventPublisher that subscribes to new events and publishes to that bus
+
 namespace DDD.Domain
 {
 	public class FileEventStore : IEventStore
@@ -76,7 +79,7 @@ namespace DDD.Domain
 				var path = $"{id}-{e.Version}.event";
 				using (TextWriter writer = fs.CreateText(path))
 				{
-					e.Version = currentVersion;
+					e.Version = currentVersion
 					eventSerializer.Serialize(writer, new EventData()
 					{
 						Timestamp = DateTime.UtcNow,

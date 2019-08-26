@@ -15,7 +15,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DDD.EventStore", "DDD.Event
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DDD.EventStore.Tests", "DDD.EventStore.Tests\DDD.EventStore.Tests.csproj", "{9D9B525B-2F42-4EC3-89D6-04C024D00EF3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Lab-JsonSerializationOfEvents", "Labs\Lab-JsonSerializationOfEvents\Lab-JsonSerializationOfEvents.csproj", "{49A3EFEB-054A-40D1-96E7-08F28BE3E03C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Lab-JsonSerializationOfEvents", "Labs\Lab-JsonSerializationOfEvents\Lab-JsonSerializationOfEvents.csproj", "{49A3EFEB-054A-40D1-96E7-08F28BE3E03C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
