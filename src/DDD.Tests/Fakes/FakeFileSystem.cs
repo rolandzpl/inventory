@@ -12,7 +12,7 @@ namespace DDD.Fakes
 	{
 		private List<File> files = new List<File>();
 
-		public IEnumerable<File> Files
+		internal IEnumerable<File> Files
 		{
 			get { return files.ToList(); }
 		}
@@ -39,7 +39,7 @@ namespace DDD.Fakes
 			return new StringReader(file.GetStringBuilder().ToString());
 		}
 
-		public class File
+		internal class File
 		{
 			private readonly Lazy<StringBuilder> sb = new Lazy<StringBuilder>();
 			public readonly string Path;
